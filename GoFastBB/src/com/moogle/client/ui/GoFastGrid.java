@@ -1,19 +1,32 @@
 package com.moogle.client.ui;
 
-import net.rim.blackberry.api.invoke.SearchArguments;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.HttpConnection;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Characters;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Screen;
-import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.ButtonField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.container.VerticalFieldManager;
+import net.rim.device.api.xml.jaxp.XMLParser;
+import net.rim.device.api.xml.parsers.DocumentBuilder;
+import net.rim.device.api.xml.parsers.DocumentBuilderFactory;
+import net.rim.device.api.xml.parsers.ParserConfigurationException;
 
 public class GoFastGrid extends MainScreen {
-	private ButtonField _buttonFieldOne;
+	/*private ButtonField _buttonFieldOne;
 	private ButtonField _buttonFieldTwo;
 	private ButtonField _buttonFieldThree;
 	private ButtonField _buttonFieldFour;
@@ -24,9 +37,9 @@ public class GoFastGrid extends MainScreen {
 	private ButtonField _buttonFieldNine;
 	private ButtonField _buttonFieldStar;
 	private ButtonField _buttonFieldZero;
-	private ButtonField _buttonFieldPound;
+	private ButtonField _buttonFieldPound;*/
 
-	private BasicEditField _phoneNumberField;
+	//private BasicEditField _phoneNumberField;
 
 	/**
 	 * Creates a new GridFieldScreen object
@@ -52,7 +65,7 @@ public class GoFastGrid extends MainScreen {
 		add(new SeparatorField());*/
 
 		// Instantiate button fields
-		_buttonFieldOne = new ButtonField("1", ButtonField.NEVER_DIRTY);
+		/*_buttonFieldOne = new ButtonField("1", ButtonField.NEVER_DIRTY);
 		_buttonFieldTwo = new ButtonField("2", ButtonField.NEVER_DIRTY);
 		_buttonFieldThree = new ButtonField("3", ButtonField.NEVER_DIRTY);
 		_buttonFieldFour = new ButtonField("4", ButtonField.NEVER_DIRTY);
@@ -63,7 +76,7 @@ public class GoFastGrid extends MainScreen {
 		_buttonFieldNine = new ButtonField("9", ButtonField.NEVER_DIRTY);
 		_buttonFieldStar = new ButtonField("*", ButtonField.NEVER_DIRTY);
 		_buttonFieldZero = new ButtonField("0", ButtonField.NEVER_DIRTY);
-		_buttonFieldPound = new ButtonField("#", ButtonField.NEVER_DIRTY);
+		_buttonFieldPound = new ButtonField("#", ButtonField.NEVER_DIRTY);*/
 		BitmapField bt1 = new BitmapField(Bitmap
 				.getBitmapResource("img/64.png"), BitmapField.FOCUSABLE);
 		BitmapField bt2 = new BitmapField(Bitmap
@@ -110,13 +123,24 @@ public class GoFastGrid extends MainScreen {
 		vfm.add(gridFieldManager);
 
 		// Add the HorizontalFieldManager to the screen
+		try {
+			//http://localhost:8080/GoFastAoeServices/restfultest;interface=wifi
+			//getViaHttpConnection("http://localhost:8080;interface=wifi");
+			//getViaHttpConnection("http://aoesearch.appspot.com;interface=wifi");
+			getViaHttpConnection("http://mooglefast.appspot.com/gofast;interface=wifi");
+			//getViaHttpConnection("http://localhost:8080/GoFastAoeServices/restfultest;deviceside=true;interface=wifi"); ///GoFastServices?type=aoe
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			System.err.println(" [aoe debug ]IOException threw " + e.toString());
+		}
 		add(vfm);
 	}
 
 	/**
 	 * @see Screen#keyChar(char, int, int)
 	 */
-	protected boolean keyChar(char key, int status, int time) {
+	/*protected boolean keyChar(char key, int status, int time) {
 		int textLength = _phoneNumberField.getText().length();
 
 		if ((key == Characters.BACKSPACE || key == Characters.ESCAPE)
@@ -127,13 +151,13 @@ public class GoFastGrid extends MainScreen {
 			return true;
 		}
 		return super.keyChar(key, status, time);
-	}
+	}*/
 
 	/**
 	 * @see Screen#navigationClick(int, int)
 	 */
 	protected boolean navigationClick(int status, int time) {
-		doUpdate();
+		//doUpdate();
 		return true;
 	}
 
@@ -141,7 +165,7 @@ public class GoFastGrid extends MainScreen {
 	 * Appends digit to the phone number field text corresponding to the
 	 * selected keypad button.
 	 */
-	void doUpdate() {
+	/*void doUpdate() {
 		if (_buttonFieldOne.isFocus()) {
 			_phoneNumberField.setText(_phoneNumberField.getText() + "1");
 		} else if (_buttonFieldTwo.isFocus()) {
@@ -167,5 +191,99 @@ public class GoFastGrid extends MainScreen {
 		} else if (_buttonFieldPound.isFocus()) {
 			_phoneNumberField.setText(_phoneNumberField.getText() + "#");
 		}
-	}
+	}*/
+	public void getViaHttpConnection(String url) throws IOException {
+         HttpConnection c = null;
+         InputStream is = null;
+         int rc;
+         System.out.println("[ aoe debug ] GetViaHttpConnection="+url);
+         try {
+             c = (HttpConnection)Connector.open(url);
+             
+             // Getting the response code will open the connection,
+             // send the request, and read the HTTP response headers.
+             // The headers are stored until requested.
+             rc = c.getResponseCode();
+             if (rc != HttpConnection.HTTP_OK) {
+            	 
+            	 System.out.println("[ aoe debug ] HTTP response code: " + rc);
+            	 //throw new IOException("HTTP response code: " + rc);
+             }
+
+             is = c.openInputStream();
+             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+             DocumentBuilder db=null;
+			try {
+				db = dbf.newDocumentBuilder();
+			    
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				 
+				System.out.println("[ aoe debug ] error ParserConfigurationException: " + e.getMessage());
+			}
+             Document doc =null;
+			try {
+				doc = db.parse(is);
+				
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				System.out.println("[ aoe debug ] error ParserConfigurationException: " + e.getMessage());
+				 
+			}
+             doc.getDocumentElement().normalize();
+             System.out.println("[ aoe debug ] Root element " + doc.getDocumentElement().getNodeName());
+             NodeList nodeLst = doc.getElementsByTagName("transid");
+             System.out.println("[ aoe debug ] nodeLst="+nodeLst.getLength());
+             for (int i = 0; i < nodeLst.getLength(); i++) {
+            	 System.out.println("[ aoe debug ] node item="+nodeLst.item(i));
+			}
+            // XMLReader r = new XMLParser();
+            // r.parse(input)
+             // Get the ContentType
+             String type = c.getType();
+
+             // Get the length and process the data
+            /* int len = (int)c.getLength();
+             if (len > 0) {
+                 int actual = 0;
+                 int bytesread = 0 ;
+                 byte[] data = new byte[len];
+                 while ((bytesread != len) && (actual != -1)) {
+                    actual = is.read(data, bytesread, len - bytesread);
+                    bytesread += actual;
+                 }
+             } else {
+                 int ch;
+                 while ((ch = is.read()) != -1) {
+                     ...
+                 }
+             }*/
+         } catch (ClassCastException e) {
+        	 System.out.println(" [aoe debug ]ClassCastException threw " + e.toString());
+        	 //throw new IllegalArgumentException("Not an HTTP URL");
+         } finally {
+             if (is != null)
+                 is.close();
+             is = null;
+             if (c != null)
+                 c.close();
+             c = null;
+         }
+     }
+	/* public void close()
+	    {
+	        // Display a farewell message before closing the application
+	        Dialog.alert("Goodbye!");     
+	        super.close();
+	    }  */
+	 public static void errorDialog(final String message)
+	    {
+	        UiApplication.getUiApplication().invokeLater(new Runnable()
+	        {
+	            public void run()
+	            {
+	                Dialog.alert(message);
+	            } 
+	        });
+	    }
 }

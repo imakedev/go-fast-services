@@ -10,16 +10,15 @@ public class GoFastUI   extends UiApplication
 	        // running thread the application's event dispatch thread.
 		 GoFastUI theApp = new GoFastUI();       
 	        theApp.enterEventDispatcher();
-	    }
-	    
-
+	    } 
 	    /**
 	     * Creates a new HelloWorldDemo object
 	     */
 	    public GoFastUI()
 	    {        
 	        // Push a screen onto the UI stack for rendering.
+	    	System.out.println("[aoe debug] ============================");
 	        pushScreen(new GoFastGrid());
 	    }    
-  
+	   
 }
